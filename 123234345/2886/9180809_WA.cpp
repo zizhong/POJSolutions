@@ -1,0 +1,64 @@
+#include<cstdio>
+#include<cstring>
+const int N=500010;
+int num[N];
+bool vst[N];
+void prenum()
+{
+     int tmp=0,k;
+     num[1]=1;
+     for(int i=2;i<=N;i++) if(!vst[i])
+     {
+          num[i]=2;
+          for(int j=i+i;j<=N;j+=i)
+          {
+              if(!vst[j]) vst[j]=true,num[j]=1;
+              k=j,tmp=0;
+              while(k%i==0) k/=i,tmp++;
+              num[j]*=(tmp+1); 
+          }
+     }
+}
+int n,k;
+struct Peo
+{
+     char name[16];
+     int x;
+     void init(){scanf("%s%d",name,&x);}
+}peo[N];
+int cnt[N];
+void build(int l,int r,int i)
+{
+     cnt[i]=r-l+1;
+     if(l==r) return ;
+     build(l,(l+r)/2,i*2);
+     build((l+r)/2+1,r,i*2+1);
+}
+int del(int x,int l,int r,int i)
+{
+    cnt[i]--;
+    if(l==r) return l;
+    int mid=l+r>>1;
+    if(cnt[2*i]>x) return del(x,l,mid,2*i);
+    return del(x-cnt[2*i],mid+1,r,2*i+1);
+}
+int main()
+{
+    prenum();
+    //for(int i=1;i<=4;i++) printf("%d ",num[i]);puts("");
+    while(scanf("%d%d",&n,&k)==2)
+    {
+         for(int i=1;i<=n;i++) peo[i].init();
+         build(1,n,1);
+         int mi=-1;
+         k--;
+         for(int t=0;t<n;t++)
+         {
+              int i=del(k,1,n,1);
+              if(mi==-1) mi=i;
+              else if(num[i]>num[mi]) mi=i;
+              if(t<n-1) k=((i+peo[i].x-2)%cnt[1]+cnt[1])%cnt[1];
+         }
+         printf("%s %d\n",peo[mi].name,num[mi]);
+    }
+}
